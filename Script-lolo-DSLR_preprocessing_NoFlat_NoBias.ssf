@@ -1,0 +1,33 @@
+############################################
+# Script for Siril 0.9
+# March 2019
+# (C) Cyril Richard
+# DSLR_preprocessing v1.5
+########### PREPROCESSING SCRIPT ###########
+# Script for DSLR color camera preprocessing
+# needs 4 sets of RAW images in the working
+# directory, within 4 directories:
+# biases, flats, darks and lights 
+#
+############################################
+
+
+#build master-dark
+cd darks
+convertraw dark_
+stack dark_ rej 3 3 -nonorm
+cd ..
+
+#preprocess lights
+cd lights
+convertraw light_
+preprocess light_ -dark=../darks/dark_stacked -debayer -stretch
+
+#align lights
+register pp_light_
+
+#stack calibrated lights
+stack r_pp_light_ rej 3 3 -norm=addscale -out=../result
+
+cd ..
+close
